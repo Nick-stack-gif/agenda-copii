@@ -27,31 +27,35 @@
             cursor: pointer;
             border-radius: 5px;
             margin: 5px;
-            font-size: 16px; /* Mărim textul pentru telefoane */
+            font-size: 16px;
         }
         button:hover {
             background-color: #5a9bd3;
         }
         .table-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: block;
             margin: 20px auto;
-            width: 95%;
-            overflow-x: auto; /* Scroll orizontal */
-            border: 1px solid #ddd; /* Adaugă un chenar pentru vizibilitate */
+            width: 100%;
+            overflow-x: auto; /* Activăm scroll orizontal */
+            border: 1px solid #ddd;
         }
         table {
             border-collapse: collapse;
-            font-size: 14px; /* Text mai mare pentru vizibilitate */
-            width: 100%; /* Asigură că tabelul ocupă lățimea completă */
-            min-width: 600px; /* Permite scroll pe dispozitive mici */
+            font-size: 14px;
+            width: 100%;
+            min-width: 800px; /* Permit scroll pentru tabele mari */
         }
         th, td {
             border: 1px solid #4682b4;
-            padding: 5px;
+            padding: 10px;
             text-align: center;
-            min-width: 100px; /* Asigură lățime minimă pentru celule */
+            min-width: 100px;
+        }
+        th:first-child, td:first-child {
+            position: sticky; /* Fixăm prima coloană */
+            left: 0;
+            background-color: #6ca6cd;
+            z-index: 1;
         }
         th {
             background-color: #6ca6cd;
@@ -64,18 +68,18 @@
             background-color: #ff6347;
             color: white;
         }
-        /* Reguli pentru ecrane mici (telefoane) */
+        /* Responsiv pentru ecrane mici */
         @media (max-width: 768px) {
             h1 {
-                font-size: 20px; /* Mărim fontul titlului */
+                font-size: 20px;
             }
             button {
-                font-size: 14px; /* Ajustăm dimensiunea butoanelor */
+                font-size: 14px;
                 padding: 8px 15px;
             }
             th, td {
-                font-size: 12px; /* Text mai mic în tabel */
-                min-width: 80px; /* Lățime minimă redusă */
+                font-size: 12px;
+                min-width: 80px;
             }
         }
     </style>
@@ -88,7 +92,7 @@
         <table>
             <thead>
                 <tr id="dateRow">
-                    <th>#</th> <!-- Adăugare coloană pentru index -->
+                    <th>#</th> <!-- Coloană fixă pentru index -->
                     <th>Nume</th>
                 </tr>
             </thead>
@@ -140,7 +144,7 @@
         }
 
         function renderDates() {
-            dateRow.innerHTML = "<th>#</th><th>Nume</th>"; // Adăugare cap tabel pentru index
+            dateRow.innerHTML = "<th>#</th><th>Nume</th>";
             dates.forEach(date => {
                 const th = document.createElement('th');
                 th.innerText = date;
@@ -153,22 +157,19 @@
             studentTable.innerHTML = '';
 
             db.collection("students").get().then(snapshot => {
-                let index = 1; // Variabilă pentru numerotare
+                let index = 1;
                 snapshot.docs.forEach(doc => {
                     const studentName = doc.id;
                     const row = document.createElement('tr');
 
-                    // Celulă pentru index
                     const indexCell = document.createElement('td');
                     indexCell.innerText = index++;
                     row.appendChild(indexCell);
 
-                    // Nume copil
                     const nameCell = document.createElement('td');
                     nameCell.innerText = studentName;
                     row.appendChild(nameCell);
 
-                    // Patrățele pentru date
                     dates.forEach(date => {
                         const cell = document.createElement('td');
                         cell.setAttribute('data-student', studentName);
@@ -222,8 +223,8 @@
             }
         }
 
-        dates = generateDates(new Date(), 7); // Inițializare zile
-        updateDates(); // Adaugă zile noi dacă este nevoie
+        dates = generateDates(new Date(), 7);
+        updateDates();
         renderTable();
     </script>
 </body>
