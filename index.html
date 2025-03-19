@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda Copii</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: #2f4f4f;
+            margin-top: 10px;
+        }
+        button {
+            background-color: #4682b4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #5a9bd3;
+        }
+        .table-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            width: 95%;
+            overflow-x: auto; /* Permite scroll orizontal */
+            border: 1px solid #ddd; /* Adaugă un chenar pentru vizibilitate */
+        }
+        table {
+            border-collapse: collapse;
+            font-size: 12px;
+            display: block;
+        }
+        th, td {
+            border: 1px solid #4682b4;
+            padding: 5px;
+            text-align: center;
+            min-width: 100px; /* Asigură lățime minimă pentru celule */
+        }
+        th {
+            background-color: #6ca6cd;
+            color: white;
+        }
+        td {
+            background-color: #fff;
+        }
+        td.absent {
+            background-color: #ff6347;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Agenda Copii</h1>
+    <button onclick="addStudent()">Adaugă copil</button>
+    <button onclick="removeStudent()">Șterge copil</button>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr id="dateRow">
+                    <th>#</th> <!-- Adaugare coloana pentru index -->
+                    <th>Nume</th>
+                </tr>
+            </thead>
+            <tbody id="studentTable"></tbody>
+        </table>
+    </div>
+    <script>
+        // Configurația Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyB4m8-f2BJ1V6LiAl6feZUfEyAK5HqTML8",
+            authDomain: "agenda-25525.firebaseapp.com",
+            projectId: "agenda-25525",
+            storageBucket: "agenda-25525.firebasestorage.app",
+            messagingSenderId: "906241995746",
+            appId: "1:906241995746:web:a52dc64f6e74d97ab8ffbb"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const dateRow = document.getElementById('dateRow');
+        const studentTable = document.getElementById('studentTable');
+        let dates = [];
+
+        function generateDates(startDate, days) {
+            const result = [];
+            const currentDate = new Date(startDate);
+            for (let i = 0; i < days; i++) {
+                const day = currentDate.getDate();
+                const month = currentDate.getMonth() + 1;
+                result.push(`${day}.${month}`);
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            return result;
+        }
+
+        function updateDates() {
+            const today = new Date();
+            const sevenDaysAhead = new Date(today);
+            sevenDaysAhead.setDate(today.getDate() + 7);
+
+            const lastDate = new Date(dates[dates.length - 1].split('.').reverse().join('-'));
+
+            if (lastDate < sevenDaysAhead) {
+                const day = sevenDaysAhead.getDate();
+                const month = sevenDaysAhead.getMonth() + 1;
+                const newDate = `${day}.${month}`;
+                dates.push(newDate);
+            }
+        }
+
+        function renderDates() {
+            dateRow.innerHTML = "<th>#</th><th>Nume</th>"; // Adăugare cap tabel pentru index
+            dates.forEach(date => {
+                const th = document.createElement('th');
+                th.innerText = date;
+                dateRow.appendChild(th);
+            });
+        }
+
+        function renderTable() {
+            renderDates();
+            studentTable.innerHTML = '';
+
+            db.collection("students").get().then(snapshot => {
+                let index = 1; // Variabilă pentru numerotare
+                snapshot.docs.forEach(doc => {
+                    const studentName = doc.id;
+                    const row = document.createElement('tr');
+
+                    // Celulă pentru index
+                    const indexCell = document.createElement('td');
+                    indexCell.innerText = index++;
+                    row.appendChild(indexCell);
+
+                    // Nume copil
+                    const nameCell = document.createElement('td');
+                    nameCell.innerText = studentName;
+                    row.appendChild(nameCell);
+
+                    // Patrățele pentru date
+                    dates.forEach(date => {
+                        const cell = document.createElement('td');
+                        cell.setAttribute('data-student', studentName);
+                        cell.setAttribute('data-date', date);
+
+                        db.collection("attendance")
+                          .doc(`${studentName}-${date}`)
+                          .get()
+                          .then(docSnap => {
+                              if (docSnap.exists && docSnap.data().absent) {
+                                  cell.classList.add('absent');
+                              }
+                          });
+
+                        cell.addEventListener('click', () => {
+                            cell.classList.toggle('absent');
+                            const isAbsent = cell.classList.contains('absent');
+                            db.collection("attendance").doc(`${studentName}-${date}`).set({
+                                absent: isAbsent,
+                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        });
+
+                        row.appendChild(cell);
+                    });
+
+                    studentTable.appendChild(row);
+                });
+            });
+        }
+
+        function addStudent() {
+            let name = prompt("Introdu numele copilului:");
+            if (name && name.trim() !== "") {
+                db.collection("students").doc(name.trim()).set({})
+                .then(() => renderTable())
+                .catch(error => console.error("Eroare la adăugare:", error));
+            } else {
+                alert("Numele copilului nu poate fi gol.");
+            }
+        }
+
+        function removeStudent() {
+            let name = prompt("Introdu numele copilului de șters:");
+            if (name && name.trim() !== "") {
+                db.collection("students").doc(name.trim()).delete()
+                .then(() => renderTable())
+                .catch(error => console.error("Eroare la ștergere:", error));
+            } else {
+                alert("Numele copilului nu poate fi gol.");
+            }
+        }
+
+        dates = generateDates(new Date(), 7); // Inițializare zile
+        updateDates(); // Adaugă zile noi dacă este nevoie
+        renderTable();
+    </script>
+</body>
+</html>
