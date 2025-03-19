@@ -27,6 +27,7 @@
             cursor: pointer;
             border-radius: 5px;
             margin: 5px;
+            font-size: 16px; /* Mărim textul pentru telefoane */
         }
         button:hover {
             background-color: #5a9bd3;
@@ -37,13 +38,14 @@
             align-items: center;
             margin: 20px auto;
             width: 95%;
-            overflow-x: auto; /* Permite scroll orizontal */
+            overflow-x: auto; /* Scroll orizontal */
             border: 1px solid #ddd; /* Adaugă un chenar pentru vizibilitate */
         }
         table {
             border-collapse: collapse;
-            font-size: 12px;
-            display: block;
+            font-size: 14px; /* Text mai mare pentru vizibilitate */
+            width: 100%; /* Asigură că tabelul ocupă lățimea completă */
+            min-width: 600px; /* Permite scroll pe dispozitive mici */
         }
         th, td {
             border: 1px solid #4682b4;
@@ -62,6 +64,20 @@
             background-color: #ff6347;
             color: white;
         }
+        /* Reguli pentru ecrane mici (telefoane) */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 20px; /* Mărim fontul titlului */
+            }
+            button {
+                font-size: 14px; /* Ajustăm dimensiunea butoanelor */
+                padding: 8px 15px;
+            }
+            th, td {
+                font-size: 12px; /* Text mai mic în tabel */
+                min-width: 80px; /* Lățime minimă redusă */
+            }
+        }
     </style>
 </head>
 <body>
@@ -72,7 +88,7 @@
         <table>
             <thead>
                 <tr id="dateRow">
-                    <th>#</th> <!-- Adaugare coloana pentru index -->
+                    <th>#</th> <!-- Adăugare coloană pentru index -->
                     <th>Nume</th>
                 </tr>
             </thead>
