@@ -36,14 +36,14 @@
             display: block;
             margin: 20px auto;
             width: 100%;
-            overflow-x: auto; /* Activăm scroll orizontal */
+            overflow-x: auto;
             border: 1px solid #ddd;
         }
         table {
             border-collapse: collapse;
             font-size: 14px;
             width: 100%;
-            min-width: 800px; /* Permit scroll pentru tabele mari */
+            min-width: 800px;
         }
         th, td {
             border: 1px solid #4682b4;
@@ -52,7 +52,7 @@
             min-width: 100px;
         }
         th:first-child, td:first-child {
-            position: sticky; /* Fixăm prima coloană */
+            position: sticky;
             left: 0;
             background-color: #6ca6cd;
             z-index: 1;
@@ -63,12 +63,19 @@
         }
         td {
             background-color: #fff;
+            cursor: pointer;
         }
         td.absent {
             background-color: #ff6347;
             color: white;
         }
-        /* Responsiv pentru ecrane mici */
+        td.today {
+            background-color: #d3d3d3;
+            font-weight: bold;
+        }
+        td.today.absent {
+            background-color: #ff6347;
+        }
         @media (max-width: 768px) {
             h1 {
                 font-size: 20px;
@@ -89,10 +96,10 @@
     <button onclick="addStudent()">Adaugă copil</button>
     <button onclick="removeStudent()">Șterge copil</button>
     <div class="table-container">
-        <table>
+        <table id="attendanceTable">
             <thead>
                 <tr id="dateRow">
-                    <th>#</th> <!-- Coloană fixă pentru index -->
+                    <th>#</th>
                     <th>Nume</th>
                 </tr>
             </thead>
@@ -100,7 +107,6 @@
         </table>
     </div>
     <script>
-        // Configurația Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyB4m8-f2BJ1V6LiAl6feZUfEyAK5HqTML8",
             authDomain: "agenda-25525.firebaseapp.com",
@@ -130,14 +136,10 @@
 
         function updateDates() {
             const today = new Date();
-            const sevenDaysAhead = new Date(today);
-            sevenDaysAhead.setDate(today.getDate() + 7);
-
             const lastDate = new Date(dates[dates.length - 1].split('.').reverse().join('-'));
-
-            if (lastDate < sevenDaysAhead) {
-                const day = sevenDaysAhead.getDate();
-                const month = sevenDaysAhead.getMonth() + 1;
+            if (lastDate < today) {
+                const day = lastDate.getDate() + 1;
+                const month = lastDate.getMonth() + 1;
                 const newDate = `${day}.${month}`;
                 dates.push(newDate);
             }
@@ -145,27 +147,32 @@
 
         function renderDates() {
             dateRow.innerHTML = "<th>#</th><th>Nume</th>";
-            dates.forEach(date => {
+            dates.forEach((date) => {
                 const th = document.createElement('th');
                 th.innerText = date;
+                if (isToday(date)) {
+                    th.classList.add("today");
+                }
                 dateRow.appendChild(th);
             });
+        }
+
+        function isToday(dateString) {
+            const today = new Date();
+            const [day, month] = dateString.split('.').map(Number);
+            return today.getDate() === day && today.getMonth() + 1 === month;
         }
 
         function renderTable() {
             renderDates();
             studentTable.innerHTML = '';
-
             db.collection("students").get().then(snapshot => {
-                let index = 1;
-                snapshot.docs.forEach(doc => {
-                    const studentName = doc.id;
+                let students = snapshot.docs.map(doc => doc.id).sort(); // Sortăm alfabetic
+                students.forEach((studentName, index) => {
                     const row = document.createElement('tr');
-
                     const indexCell = document.createElement('td');
-                    indexCell.innerText = index++;
+                    indexCell.innerText = index + 1;
                     row.appendChild(indexCell);
-
                     const nameCell = document.createElement('td');
                     nameCell.innerText = studentName;
                     row.appendChild(nameCell);
@@ -174,7 +181,9 @@
                         const cell = document.createElement('td');
                         cell.setAttribute('data-student', studentName);
                         cell.setAttribute('data-date', date);
-
+                        if (isToday(date)) {
+                            cell.classList.add("today");
+                        }
                         db.collection("attendance")
                           .doc(`${studentName}-${date}`)
                           .get()
@@ -198,14 +207,22 @@
 
                     studentTable.appendChild(row);
                 });
+                scrollToToday();
             });
+        }
+
+        function scrollToToday() {
+            const todayCell = document.querySelector('.today');
+            if (todayCell) {
+                todayCell.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            }
         }
 
         function addStudent() {
             let name = prompt("Introdu numele copilului:");
             if (name && name.trim() !== "") {
                 db.collection("students").doc(name.trim()).set({})
-                .then(() => renderTable())
+                .then(() => renderTable()) // Sortăm și reafișăm tabelul după adăugare
                 .catch(error => console.error("Eroare la adăugare:", error));
             } else {
                 alert("Numele copilului nu poate fi gol.");
