@@ -8,66 +8,78 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f8ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f9fb;
             color: #333;
             text-align: center;
             margin: 0;
             padding: 0;
         }
         h1 {
-            color: #2f4f4f;
-            margin-top: 10px;
+            color: #3c4858;
+            margin: 20px 0;
+            font-size: 28px;
+            text-shadow: 1px 1px 2px #ccc;
         }
         button {
             background-color: #4682b4;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 25px;
             cursor: pointer;
-            border-radius: 5px;
-            margin: 5px;
+            border-radius: 8px;
+            margin: 10px;
             font-size: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         button:hover {
             background-color: #5a9bd3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
         }
         .table-container {
             display: block;
             margin: 20px auto;
-            width: 100%;
+            width: 95%;
+            max-width: 1200px;
             overflow-x: auto;
             border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: white;
         }
         table {
             border-collapse: collapse;
-            font-size: 14px;
             width: 100%;
             min-width: 800px;
+            font-size: 15px;
         }
         th, td {
-            border: 1px solid #4682b4;
-            padding: 10px;
+            border: 1px solid black;
+            padding: 15px;
             text-align: center;
             min-width: 100px;
         }
         th:first-child, td:first-child {
             position: sticky;
             left: 0;
-            background-color: #6ca6cd;
+            background-color: #6ca6cd; /* Albastru */
             z-index: 1;
-        }
-        th {
-            background-color: #6ca6cd;
             color: white;
         }
+        th {
+            background-color: #4682b4;
+            color: white;
+            font-weight: bold;
+        }
         td {
-            background-color: #fff;
-            cursor: pointer;
+            background-color: #f9fafb;
         }
         td.absent {
             background-color: #ff6347;
             color: white;
+            font-weight: bold;
         }
         td.today {
             background-color: #d3d3d3;
@@ -75,18 +87,20 @@
         }
         td.today.absent {
             background-color: #ff6347;
+            font-weight: bold;
         }
         @media (max-width: 768px) {
             h1 {
-                font-size: 20px;
+                font-size: 24px;
             }
             button {
                 font-size: 14px;
-                padding: 8px 15px;
+                padding: 10px 20px;
             }
             th, td {
-                font-size: 12px;
+                font-size: 13px;
                 min-width: 80px;
+                padding: 8px;
             }
         }
     </style>
@@ -136,12 +150,9 @@
 
         function updateDates() {
             const today = new Date();
-            const lastDate = new Date(dates[dates.length - 1].split('.').reverse().join('-'));
-            if (lastDate < today) {
-                const day = lastDate.getDate() + 1;
-                const month = lastDate.getMonth() + 1;
-                const newDate = `${day}.${month}`;
-                dates.push(newDate);
+            const todayString = `${today.getDate()}.${today.getMonth() + 1}`;
+            if (!dates.includes(todayString)) {
+                dates.push(todayString);
             }
         }
 
@@ -167,7 +178,7 @@
             renderDates();
             studentTable.innerHTML = '';
             db.collection("students").get().then(snapshot => {
-                let students = snapshot.docs.map(doc => doc.id).sort(); // Sortăm alfabetic
+                const students = snapshot.docs.map(doc => doc.id).sort();
                 students.forEach((studentName, index) => {
                     const row = document.createElement('tr');
                     const indexCell = document.createElement('td');
@@ -194,8 +205,7 @@
                           });
 
                         cell.addEventListener('click', () => {
-                            cell.classList.toggle('absent');
-                            const isAbsent = cell.classList.contains('absent');
+                            const isAbsent = cell.classList.toggle('absent');
                             db.collection("attendance").doc(`${studentName}-${date}`).set({
                                 absent: isAbsent,
                                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
@@ -207,22 +217,14 @@
 
                     studentTable.appendChild(row);
                 });
-                scrollToToday();
             });
         }
 
-        function scrollToToday() {
-            const todayCell = document.querySelector('.today');
-            if (todayCell) {
-                todayCell.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-            }
-        }
-
         function addStudent() {
-            let name = prompt("Introdu numele copilului:");
+            const name = prompt("Introdu numele copilului:");
             if (name && name.trim() !== "") {
                 db.collection("students").doc(name.trim()).set({})
-                .then(() => renderTable()) // Sortăm și reafișăm tabelul după adăugare
+                .then(renderTable)
                 .catch(error => console.error("Eroare la adăugare:", error));
             } else {
                 alert("Numele copilului nu poate fi gol.");
@@ -230,10 +232,10 @@
         }
 
         function removeStudent() {
-            let name = prompt("Introdu numele copilului de șters:");
+            const name = prompt("Introdu numele copilului de șters:");
             if (name && name.trim() !== "") {
                 db.collection("students").doc(name.trim()).delete()
-                .then(() => renderTable())
+                .then(renderTable)
                 .catch(error => console.error("Eroare la ștergere:", error));
             } else {
                 alert("Numele copilului nu poate fi gol.");
