@@ -4,111 +4,157 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agenda Copii</title>
+
+    <!-- Google Fonts pentru fonturi moderne -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Iconite FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f7f9fb;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
             color: #333;
             text-align: center;
             margin: 0;
             padding: 0;
         }
+
         h1 {
-            color: #3c4858;
-            margin: 20px 0;
-            font-size: 28px;
-            text-shadow: 1px 1px 2px #ccc;
+            color: #2c3e50;
+            margin: 30px 0;
+            font-size: 32px;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
         }
+
         button {
-            background-color: #4682b4;
+            background-color: #4682b4; /* Culoare albastru actualizată */
             color: white;
             border: none;
-            padding: 12px 25px;
+            padding: 12px 30px;
             cursor: pointer;
-            border-radius: 8px;
-            margin: 10px;
-            font-size: 16px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 50px;
+            margin: 15px;
+            font-size: 18px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
             transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
+
         button:hover {
-            background-color: #5a9bd3;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+            background-color: #5a9bd3; /* Albastru mai deschis la hover */
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
+
+        button i {
+            margin-right: 10px;
+        }
+
         .table-container {
             display: block;
             margin: 20px auto;
             width: 95%;
             max-width: 1200px;
             overflow-x: auto;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
             background-color: white;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
         }
+
         table {
             border-collapse: collapse;
             width: 100%;
             min-width: 800px;
-            font-size: 15px;
+            font-size: 16px;
+            table-layout: fixed;
         }
+
         th, td {
-            border: 1px solid black;
+            border: 1px solid #ddd;
             padding: 15px;
             text-align: center;
-            min-width: 100px;
         }
-        th:first-child, td:first-child {
+
+        th {
+            background-color: #4682b4; /* Culoare albastru actualizată pentru header */
+            color: white;
+            font-weight: 600;
+        }
+
+        td {
+            background-color: #ecf0f1;
+        }
+
+        td.absent {
+            background-color: #e74c3c;
+            color: white;
+            font-weight: bold;
+        }
+
+        td.today {
+            background-color: #d3d3d3; /* Gri deschis pentru ziua curentă */
+            font-weight: bold;
+        }
+
+        td.today.absent {
+            background-color: #e74c3c;
+        }
+
+        .sticky-col {
             position: sticky;
             left: 0;
-            background-color: #6ca6cd; /* Albastru */
+            background-color: #2980b9;
+            color: white;
+            z-index: 2;
+        }
+
+        .sticky-col + th {
             z-index: 1;
-            color: white;
         }
-        th {
-            background-color: #4682b4;
-            color: white;
-            font-weight: bold;
+
+        .sticky-col + td {
+            z-index: 1;
         }
-        td {
-            background-color: #f9fafb;
+
+        td:hover {
+            background-color: #bdc3c7;
+            cursor: pointer;
         }
-        td.absent {
-            background-color: #ff6347;
-            color: white;
-            font-weight: bold;
+
+        td.absent:hover {
+            background-color: #e74c3c;
         }
-        td.today {
-            background-color: #d3d3d3;
-            font-weight: bold;
-        }
-        td.today.absent {
-            background-color: #ff6347;
-            font-weight: bold;
-        }
+
         @media (max-width: 768px) {
             h1 {
-                font-size: 24px;
+                font-size: 28px;
             }
+
             button {
-                font-size: 14px;
-                padding: 10px 20px;
+                font-size: 16px;
+                padding: 10px 25px;
             }
+
             th, td {
-                font-size: 13px;
+                font-size: 14px;
                 min-width: 80px;
-                padding: 8px;
+                padding: 10px;
             }
         }
     </style>
 </head>
 <body>
     <h1>Agenda Copii</h1>
-    <button onclick="addStudent()">Adaugă copil</button>
-    <button onclick="removeStudent()">Șterge copil</button>
+    <button onclick="addStudent()"><i class="fas fa-user-plus"></i>Adaugă copil</button>
+    <button onclick="removeStudent()"><i class="fas fa-user-times"></i>Șterge copil</button>
+
     <div class="table-container">
         <table id="attendanceTable">
             <thead>
@@ -120,6 +166,7 @@
             <tbody id="studentTable"></tbody>
         </table>
     </div>
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyB4m8-f2BJ1V6LiAl6feZUfEyAK5HqTML8",
@@ -178,7 +225,7 @@
             renderDates();
             studentTable.innerHTML = '';
             db.collection("students").get().then(snapshot => {
-                const students = snapshot.docs.map(doc => doc.id).sort();
+                const students = snapshot.docs.map(doc => doc.id).sort((a, b) => a.localeCompare(b, 'ro'));
                 students.forEach((studentName, index) => {
                     const row = document.createElement('tr');
                     const indexCell = document.createElement('td');
@@ -220,11 +267,26 @@
             });
         }
 
+        function scrollToToday() {
+            const today = new Date();
+            const todayString = `${today.getDate()}.${today.getMonth() + 1}`;
+            const dateHeaders = document.querySelectorAll("#dateRow th");
+
+            dateHeaders.forEach((th, index) => {
+                if (th.innerText === todayString) {
+                    const tableContainer = document.querySelector(".table-container");
+                    const scrollAmount = th.offsetLeft - tableContainer.offsetLeft;
+                    tableContainer.scrollLeft = scrollAmount; // Scroll automat la ziua curentă
+                }
+            });
+        }
+
         function addStudent() {
             const name = prompt("Introdu numele copilului:");
             if (name && name.trim() !== "") {
                 db.collection("students").doc(name.trim()).set({})
                 .then(renderTable)
+                .then(scrollToToday)
                 .catch(error => console.error("Eroare la adăugare:", error));
             } else {
                 alert("Numele copilului nu poate fi gol.");
@@ -236,6 +298,7 @@
             if (name && name.trim() !== "") {
                 db.collection("students").doc(name.trim()).delete()
                 .then(renderTable)
+                .then(scrollToToday)
                 .catch(error => console.error("Eroare la ștergere:", error));
             } else {
                 alert("Numele copilului nu poate fi gol.");
@@ -245,6 +308,7 @@
         dates = generateDates(new Date(), 7);
         updateDates();
         renderTable();
+        scrollToToday();
     </script>
 </body>
 </html>
