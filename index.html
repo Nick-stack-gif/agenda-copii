@@ -22,6 +22,139 @@
             text-align: center;
             margin: 0;
             padding: 0;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .dark-mode {
+            background-color: #1e1e1e;
+            color: #f5f5f5;
+        }
+
+        .dark-mode h1 {
+            color: #f5f5f5;
+        }
+
+        .dark-mode button {
+            background-color: #5a9bd3;
+            color: #1e1e1e;
+        }
+
+        .dark-mode button:hover {
+            background-color: #4682b4;
+        }
+
+        .dark-mode .table-container {
+            background-color: #2c3e50;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .dark-mode table {
+            background-color: #2c3e50;
+        }
+
+        .dark-mode th {
+            background-color: #4682b4;
+            color: #f5f5f5;
+        }
+
+        .dark-mode td {
+            background-color: #34495e;
+            color: #f5f5f5;
+        }
+
+        .dark-mode td.absent {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .dark-mode td.today {
+            background-color: #7f8c8d;
+        }
+
+        .dark-mode td.today.absent {
+            background-color: #e74c3c;
+        }
+
+        .dark-mode .sticky-col {
+            background-color: #2980b9;
+            color: white;
+        }
+
+        .dark-mode td:hover {
+            background-color: #5a9bd3;
+        }
+
+        .dark-mode td.absent:hover {
+            background-color: #e74c3c;
+        }
+
+        .dark-mode .password-form {
+            background-color: #2c3e50;
+            color: #f5f5f5;
+        }
+
+        .dark-mode .password-form input {
+            background-color: #34495e;
+            color: #f5f5f5;
+            border: 1px solid #5a9bd3;
+        }
+
+        .dark-mode .password-form button {
+            background-color: #4682b4;
+            color: #f5f5f5;
+        }
+
+        .dark-mode .password-form button:hover {
+            background-color: #5a9bd3;
+        }
+
+        .switch-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .switch-label {
+            margin-left: 8px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .switch input {
+            display: none;
+        }
+
+        .slider {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+            background: #ccc;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .slider:before {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        input:checked + .slider {
+            background: #4682b4;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
         }
 
         h1 {
@@ -32,7 +165,7 @@
         }
 
         button {
-            background-color: #4682b4; /* Culoare albastru actualizată */
+            background-color: #4682b4;
             color: white;
             border: none;
             padding: 12px 30px;
@@ -48,7 +181,7 @@
         }
 
         button:hover {
-            background-color: #5a9bd3; /* Albastru mai deschis la hover */
+            background-color: #5a9bd3;
             transform: translateY(-4px);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
@@ -83,7 +216,7 @@
         }
 
         th {
-            background-color: #4682b4; /* Culoare albastru actualizată pentru header */
+            background-color: #4682b4;
             color: white;
             font-weight: 600;
         }
@@ -99,7 +232,7 @@
         }
 
         td.today {
-            background-color: #d3d3d3; /* Gri deschis pentru ziua curentă */
+            background-color: #d3d3d3;
             font-weight: bold;
         }
 
@@ -192,6 +325,14 @@
     </style>
 </head>
 <body>
+    <div class="switch-container">
+        <label class="switch">
+            <input type="checkbox" id="darkModeToggle">
+            <span class="slider"></span>
+        </label>
+        <span class="switch-label">Dark Mode</span>
+    </div>
+
     <!-- Formular de Parolă -->
     <div class="password-container" id="passwordContainer">
         <div class="password-form">
@@ -222,6 +363,24 @@
     </div>
 
     <script>
+        const darkModeToggle = document.getElementById("darkModeToggle");
+        function setDarkMode(enabled) {
+            if (enabled) {
+                document.body.classList.add("dark-mode");
+                localStorage.setItem("darkMode", "enabled");
+            } else {
+                document.body.classList.remove("dark-mode");
+                localStorage.setItem("darkMode", "disabled");
+            }
+        }
+        darkModeToggle.addEventListener("change", () => {
+            setDarkMode(darkModeToggle.checked);
+        });
+        if (localStorage.getItem("darkMode") === "enabled") {
+            setDarkMode(true);
+            darkModeToggle.checked = true;
+        }
+
         const correctPassword = "Agenda2025!"; // Parola corectă
         const firebaseConfig = {
             apiKey: "AIzaSyB4m8-f2BJ1V6LiAl6feZUfEyAK5HqTML8",
