@@ -211,17 +211,21 @@
             box-shadow: var(--box-shadow);
         }
 
-        .table-container {
-            position: relative;
-            overflow-x: auto;
-            margin: 20px auto;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            background-color: white;
-            width: 100%;
-            -webkit-overflow-scrolling: touch;
-            touch-action: pan-x;
-        }
+.table-container {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: auto; /* Scroll vertical activ */
+    max-height: 800px; /* Înălțime maximă a tabelului */
+    margin: 20px auto;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    background-color: white;
+    width: 100%;
+    -webkit-overflow-scrolling: touch; /* Scroll natural pe iOS și Android */
+    touch-action: pan-y; /* Permite gesturi de scroll vertical */
+}
+
+
 
         table {
             border-collapse: collapse;
