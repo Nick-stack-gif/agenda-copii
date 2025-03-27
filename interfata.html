@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda Elevilor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3f37c9;
+        --accent-color: #4895ef;
+        --danger-color: #f72585;
+        --success-color: #4cc9f0;
+        --light-color: #f8f9fa;
+        --dark-color: #212529;
+        --gray-color: #6c757d;
+        --border-radius: 8px;
+        --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f5f7fa;
+        background-image: linear-gradient(to bottom, rgba(245, 247, 250, 0.9), rgba(245, 247, 250, 0.9)), 
+                          url('https://diez.md/wp-content/uploads/2016/04/1-81.jpg');
+        background-size: cover;
+        background-attachment: fixed;
+        color: var(--dark-color);
+        margin: 0;
+        padding: 0;
+        line-height: 1.6;
+    }
+
+    #login-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(33, 37, 41, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        backdrop-filter: blur(5px);
+    }
+
+    #login-box {
+        background-color: white;
+        padding: 40px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+        transform: translateY(-20px);
+        animation: fadeInUp 0.5s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    #login-box h2 {
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    #login-box .logo {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+    }
+
+    #login-box input {
+        padding: 12px 15px;
+        margin: 15px 0;
+        width: 100%;
+        border: 2px solid #e9ecef;
+        border-radius: var(--border-radius);
+        font-size: 16px;
+        transition: var(--transition);
+    }
+
+    #login-box input:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    #login-box button {
+        padding: 12px 25px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        transition: var(--transition);
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    #login-box button:hover {
+        background-color: var(--secondary-color);
+        transform: translateY(-2px);
+    }
+
+    #login-box button i {
+        margin-right: 8px;
+    }
+
+    #error-message {
+        color: var(--danger-color);
+        margin-top: 15px;
+        font-size: 14px;
+    }
+
+    #content {
+        display: none;
+        padding: 30px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+
+    .header h1 {
+        color: var(--primary-color);
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 600;
+    }
+
+    .header h1 i {
+        margin-right: 10px;
+    }
+
+    .buttons-container {
+        display: flex;
+        gap: 10px;
+        margin: 15px 0;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-size: 14px;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-weight: 500;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn i {
+        margin-right: 8px;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--secondary-color);
+        transform: translateY(-2px);
+        box-shadow: var(--box-shadow);
+    }
+
+    .btn-danger {
+        background-color: var(--danger-color);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #d1145a;
+        transform: translateY(-2px);
+        box-shadow: var(--box-shadow);
+    }
+
+    .table-container {
+        position: relative;
+        overflow-x: auto;
+        margin: 20px auto;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        background-color: white;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 14px;
+        min-width: 600px;
+    }
+
+    th, td {
+        border: 1px solid #444 !important; /* Gri închis pentru un efect subtil */
+        padding: 12px 8px;
+        text-align: center;
+        position: relative;
+    }
+
+    th {
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 500;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    th.sticky, td.sticky {
+        position: sticky;
+        left: 0;
+        z-index: 20;
+    }
+
+    th.sticky {
+        background-color: var(--primary-color);
+        z-index: 30;
+    }
+
+    td.sticky {
+        background-color: white;
+        font-weight: 500;
+        z-index: 20;
+    }
+
+    tr:nth-child(even) td.sticky {
+        background-color: #f8f9fa;
+    }
+
+    td:not(.sticky) {
+        background-color: rgba(67, 97, 238, 0.1);
+        z-index: 1;
+    }
+
+    .today {
+        background-color: rgba(67, 97, 238, 0.3) !important;
+        border: 2px solid var(--primary-color) !important;
+        z-index: 5;
+    }
+
+    .absent {
+        background-color: var(--danger-color) !important;
+        color: white !important;
+        z-index: 5;
+    }
+
+    @media (max-width: 768px) {
+        .header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .buttons-container {
+            margin-top: 15px;
+            width: 100%;
+        }
+        
+        .btn {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
+</head>
+<body>
+    <div id="login-container">
+        <div id="login-box">
+            <div class="logo">
+                <i class="fas fa-book-open"></i>
+            </div>
+            <h2>Autentificare Agenda</h2>
+            <p>Introdu parola pentru a accesa platforma:</p>
+            <input type="password" id="password-input" placeholder="Introdu parola">
+            <button onclick="checkPassword()"><i class="fas fa-lock"></i> Accesează</button>
+            <p id="error-message" style="display: none;">Parolă incorectă!</p>
+        </div>
+    </div>
+
+    <div id="content">
+        <div class="header">
+            <h1><i class="fas fa-book"></i> Agenda Elevilor</h1>
+            <div class="buttons-container">
+                <button class="btn btn-primary" onclick="addStudent()"><i class="fas fa-user-plus"></i> Adaugă Elev</button>
+                <button class="btn btn-danger" onclick="removeStudent()"><i class="fas fa-user-minus"></i> Șterge Elev</button>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="agenda">
+                <thead>
+                    <tr id="dateRow">
+                        <th class="sticky">#</th>
+                        <th class="sticky">Nume Elev</th>
+                    </tr>
+                </thead>
+                <tbody id="studentTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script>
+        // Funcții globale
+        function checkPassword() {
+            const password = document.getElementById('password-input').value;
+            const errorMessage = document.getElementById('error-message');
+            
+            if (password === "Agenda2025!") {
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                initializeAppAndRenderTable();
+            } else {
+                errorMessage.style.display = 'block';
+                document.getElementById('password-input').value = '';
+            }
+        }
+
+        // Variabile globale
+        let db;
+        let dates;
+        let dateRow;
+        let studentTable;
+
+        // Inițializare aplicație
+        function initializeAppAndRenderTable() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyB4m8-f2BJ1V6LiAl6feZUfEyAK5HqTML8",
+                authDomain: "agenda-25525.firebaseapp.com",
+                projectId: "agenda-25525",
+                storageBucket: "agenda-25525.appspot.com",
+                messagingSenderId: "906241995746",
+                appId: "1:906241995746:web:a52dc64f6e74d97ab8ffbb"
+            };
+            
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            
+            dateRow = document.getElementById('dateRow');
+            studentTable = document.getElementById('studentTable');
+            
+            // Inițializare date
+            dates = ["24.3", "25.3", "26.3", "27.3", "28.3", "29.3", "30.3", "31.3"];
+            
+            checkForNewDate();
+            renderTable();
+            setInterval(checkForNewDate, 60 * 60 * 1000);
+        }
+
+        // Funcții pentru gestionarea datelor
+        function checkForNewDate() {
+            const today = new Date();
+            const currentDay = today.getDate();
+            const currentMonth = today.getMonth() + 1;
+            const currentDateStr = currentDay + "." + currentMonth;
+            
+            if (!dates.includes(currentDateStr)) {
+                if (dates.length === 0) {
+                    dates.push(currentDateStr);
+                    renderTable();
+                    return;
+                }
+                
+                const lastDateStr = dates[dates.length - 1];
+                const [lastDay, lastMonth] = lastDateStr.split('.').map(Number);
+                const lastDate = new Date(today.getFullYear(), lastMonth - 1, lastDay);
+                const nextDate = new Date(lastDate);
+                nextDate.setDate(lastDate.getDate() + 1);
+                
+                if (nextDate.getDate() === currentDay && nextDate.getMonth() + 1 === currentMonth) {
+                    dates.push(currentDateStr);
+                    renderTable();
+                }
+            }
+        }
+
+        function renderDates() {
+            dateRow.innerHTML = "<th class='sticky'>#</th><th class='sticky'>Nume Elev</th>";
+            dates.forEach(date => {
+                const th = document.createElement('th');
+                th.textContent = date;
+                if (isToday(date)) {
+                    th.classList.add("today");
+                }
+                dateRow.appendChild(th);
+            });
+        }
+
+        function isToday(dateString) {
+            const today = new Date();
+            const [day, month] = dateString.split('.').map(Number);
+            return today.getDate() === day && today.getMonth() + 1 === month;
+        }
+
+        // Funcții pentru afișarea tabelului
+        function renderTable() {
+            renderDates();
+            studentTable.innerHTML = '';
+            
+            db.collection("students").get().then(snapshot => {
+                const students = snapshot.docs.map(doc => doc.id).sort((a, b) => a.localeCompare(b, 'ro'));
+                
+                students.forEach((studentName, index) => {
+                    const row = document.createElement('tr');
+                    const indexCell = document.createElement('td');
+                    const nameCell = document.createElement('td');
+
+                    indexCell.textContent = index + 1;
+                    nameCell.textContent = studentName;
+                    indexCell.classList.add("sticky");
+                    nameCell.classList.add("sticky");
+
+                    row.appendChild(indexCell);
+                    row.appendChild(nameCell);
+
+                    dates.forEach(date => {
+                        const cell = document.createElement('td');
+                        cell.setAttribute('data-student', studentName);
+                        cell.setAttribute('data-date', date);
+
+                        db.collection("attendance")
+                            .doc(studentName + "-" + date)
+                            .get()
+                            .then(docSnap => {
+                                if (docSnap.exists && docSnap.data().absent) {
+                                    cell.classList.add('absent');
+                                }
+                            });
+
+                        cell.addEventListener('click', () => {
+                            cell.classList.toggle('absent');
+                            db.collection("attendance").doc(studentName + "-" + date).set({
+                                absent: cell.classList.contains('absent'),
+                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        });
+
+                        if (isToday(date)) cell.classList.add("today");
+                        row.appendChild(cell);
+                    });
+
+                    studentTable.appendChild(row);
+                });
+            });
+        }
+
+        // Funcții pentru gestionarea elevilor
+        function addStudent() {
+            const name = prompt("Introdu numele elevului:");
+            if (name && name.trim() !== "") {
+                db.collection("students")
+                    .doc(name.trim())
+                    .set({})
+                    .then(() => {
+                        alert("Elevul a fost adăugat cu succes!");
+                        renderTable();
+                    })
+                    .catch((error) => console.error("Eroare la adăugare:", error));
+            } else {
+                alert("Numele elevului nu poate fi gol.");
+            }
+        }
+
+        function removeStudent() {
+            const name = prompt("Introdu numele elevului de șters:");
+            if (name && name.trim() !== "") {
+                if (confirm("Ești sigur că vrei să ștergi elevul " + name + "?")) {
+                    db.collection("students")
+                        .doc(name.trim())
+                        .delete()
+                        .then(() => {
+                            alert("Elevul a fost șters cu succes!");
+                            renderTable();
+                        })
+                        .catch((error) => console.error("Eroare la ștergere:", error));
+                }
+            } else {
+                alert("Numele elevului nu poate fi gol.");
+            }
+        }
+
+        // Event listeners
+        document.getElementById('password-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('.table-container')?.addEventListener('wheel', (event) => {
+                event.preventDefault();
+                event.currentTarget.scrollLeft += event.deltaY;
+            });
+        });
+    </script>
+</body>
+</html>
