@@ -211,21 +211,17 @@
             box-shadow: var(--box-shadow);
         }
 
-.table-container {
-    position: relative;
-    overflow-x: auto;
-    overflow-y: auto; /* Scroll vertical activ */
-    max-height: 800px; /* Înălțime maximă a tabelului */
-    margin: 20px auto;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    background-color: white;
-    width: 100%;
-    -webkit-overflow-scrolling: touch; /* Scroll natural pe iOS și Android */
-    touch-action: pan-y; /* Permite gesturi de scroll vertical */
-}
-
-
+        .table-container {
+            position: relative;
+            overflow: auto;
+            max-height: 800px;
+            margin: 20px auto;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            background-color: white;
+            width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
 
         table {
             border-collapse: collapse;
@@ -438,7 +434,7 @@
             
             checkForNewDate();
             renderTable();
-            setupTouchScrolling();
+            setupScrolling();
             setInterval(checkForNewDate, 60 * 60 * 1000);
         }
 
@@ -574,28 +570,62 @@
             }
         }
 
-        // Scroll pe dispozitive mobile
-        function setupTouchScrolling() {
+        // Funcție pentru gestionarea scroll-ului
+        function setupScrolling() {
             const container = document.getElementById('tableContainer');
-            let startX, scrollLeft;
-            let isDown = false;
-
-            container.addEventListener('touchstart', (e) => {
-                isDown = true;
-                startX = e.touches[0].pageX - container.offsetLeft;
-                scrollLeft = container.scrollLeft;
-            }, { passive: true });
-
-            container.addEventListener('touchmove', (e) => {
-                if(!isDown) return;
-                e.preventDefault();
-                const x = e.touches[0].pageX - container.offsetLeft;
-                const walk = (x - startX) * 1.5;
-                container.scrollLeft = scrollLeft - walk;
+            
+            // Pentru PC - Scroll orizontal cu rotița mouse-ului
+            container.addEventListener('wheel', function(e) {
+                // Verificăm dacă utilizatorul nu folosește bara de scroll verticală
+                if (!e.shiftKey && container.scrollHeight === container.clientHeight) {
+                    // Dacă tabelul nu are scroll vertical, facem scroll orizontal
+                    this.scrollLeft += e.deltaY;
+                    e.preventDefault();
+                } else if (!e.shiftKey && container.scrollTop + container.clientHeight >= container.scrollHeight) {
+                    // Dacă suntem la baza tabelului, facem scroll orizontal
+                    this.scrollLeft += e.deltaY;
+                    e.preventDefault();
+                } else if (!e.shiftKey && container.scrollTop <= 0) {
+                    // Dacă suntem în vârful tabelului, facem scroll orizontal
+                    this.scrollLeft += e.deltaY;
+                    e.preventDefault();
+                }
+                // Altfel, lăsăm scroll-ul vertical să funcționeze normal
             }, { passive: false });
 
-            container.addEventListener('touchend', () => {
-                isDown = false;
+            // Pentru telefoane - Scroll orizontal și vertical cu degetul
+            let startX, startY, isScrolling;
+            
+            container.addEventListener('touchstart', function(e) {
+                startX = e.touches[0].pageX;
+                startY = e.touches[0].pageY;
+                isScrolling = false;
+            }, { passive: true });
+
+            container.addEventListener('touchmove', function(e) {
+                if (!isScrolling) {
+                    const x = e.touches[0].pageX;
+                    const y = e.touches[0].pageY;
+                    const dx = Math.abs(x - startX);
+                    const dy = Math.abs(y - startY);
+                    
+                    // Determinăm direcția predominantă a glisării
+                    isScrolling = dx > dy ? 'horizontal' : 'vertical';
+                }
+
+                if (isScrolling === 'horizontal') {
+                    // Scroll orizontal
+                    const x = e.touches[0].pageX;
+                    const walkX = x - startX;
+                    this.scrollLeft -= walkX;
+                    startX = x;
+                    e.preventDefault();
+                }
+                // Dacă e scroll vertical, lăsăm browserul să se ocupe
+            }, { passive: false });
+
+            container.addEventListener('touchend', function() {
+                isScrolling = false;
             }, { passive: true });
         }
 
@@ -605,14 +635,6 @@
                 checkPassword();
             }
         });
-
-        // Scroll orizontal cu mouse wheel
-        document.querySelector('.table-container').addEventListener('wheel', function(e) {
-            if (e.deltaY !== 0) {
-                e.preventDefault();
-                this.scrollLeft += e.deltaY;
-            }
-        }, { passive: false });
     </script>
 </body>
 </html>
