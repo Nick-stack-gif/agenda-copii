@@ -2,285 +2,355 @@
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Agenda Elevilor</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-    :root {
-        --primary-color: #4361ee;
-        --secondary-color: #3f37c9;
-        --accent-color: #4895ef;
-        --danger-color: #f72585;
-        --success-color: #4cc9f0;
-        --light-color: #f8f9fa;
-        --dark-color: #212529;
-        --gray-color: #6c757d;
-        --border-radius: 8px;
-        --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        --transition: all 0.3s ease;
-    }
-
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: #f5f7fa;
-        background-image: linear-gradient(to bottom, rgba(245, 247, 250, 0.9), rgba(245, 247, 250, 0.9)), 
-                          url('https://diez.md/wp-content/uploads/2016/04/1-81.jpg');
-        background-size: cover;
-        background-attachment: fixed;
-        color: var(--dark-color);
-        margin: 0;
-        padding: 0;
-        line-height: 1.6;
-    }
-
-    #login-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(33, 37, 41, 0.9);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-        backdrop-filter: blur(5px);
-    }
-
-    #login-box {
-        background-color: white;
-        padding: 40px;
-        border-radius: var(--border-radius);
-        box-shadow: var(--box-shadow);
-        text-align: center;
-        max-width: 400px;
-        width: 90%;
-        transform: translateY(-20px);
-        animation: fadeInUp 0.5s ease forwards;
-    }
-
-    @keyframes fadeInUp {
-        to {
-            transform: translateY(0);
-            opacity: 1;
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --danger-color: #f72585;
+            --success-color: #4cc9f0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --gray-color: #6c757d;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
         }
-    }
 
-    #login-box h2 {
-        color: var(--primary-color);
-        margin-bottom: 20px;
-        font-weight: 600;
-    }
-
-    #login-box .logo {
-        font-size: 2.5rem;
-        color: var(--primary-color);
-        margin-bottom: 15px;
-    }
-
-    #login-box input {
-        padding: 12px 15px;
-        margin: 15px 0;
-        width: 100%;
-        border: 2px solid #e9ecef;
-        border-radius: var(--border-radius);
-        font-size: 16px;
-        transition: var(--transition);
-    }
-
-    #login-box input:focus {
-        border-color: var(--primary-color);
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
-    }
-
-    #login-box button {
-        padding: 12px 25px;
-        background-color: var(--primary-color);
-        color: white;
-        border: none;
-        border-radius: var(--border-radius);
-        cursor: pointer;
-        font-size: 16px;
-        font-weight: 500;
-        transition: var(--transition);
-        width: 100%;
-        margin-top: 10px;
-    }
-
-    #login-box button:hover {
-        background-color: var(--secondary-color);
-        transform: translateY(-2px);
-    }
-
-    #login-box button i {
-        margin-right: 8px;
-    }
-
-    #error-message {
-        color: var(--danger-color);
-        margin-top: 15px;
-        font-size: 14px;
-    }
-
-    #content {
-        display: none;
-        padding: 30px;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-        flex-wrap: wrap;
-    }
-
-    .header h1 {
-        color: var(--primary-color);
-        margin: 0;
-        font-size: 2rem;
-        font-weight: 600;
-    }
-
-    .header h1 i {
-        margin-right: 10px;
-    }
-
-    .buttons-container {
-        display: flex;
-        gap: 10px;
-        margin: 15px 0;
-    }
-
-    .btn {
-        padding: 10px 20px;
-        font-size: 14px;
-        border: none;
-        border-radius: var(--border-radius);
-        cursor: pointer;
-        font-weight: 500;
-        transition: var(--transition);
-        display: inline-flex;
-        align-items: center;
-    }
-
-    .btn i {
-        margin-right: 8px;
-    }
-
-    .btn-primary {
-        background-color: var(--primary-color);
-        color: white;
-    }
-
-    .btn-primary:hover {
-        background-color: var(--secondary-color);
-        transform: translateY(-2px);
-        box-shadow: var(--box-shadow);
-    }
-
-    .btn-danger {
-        background-color: var(--danger-color);
-        color: white;
-    }
-
-    .btn-danger:hover {
-        background-color: #d1145a;
-        transform: translateY(-2px);
-        box-shadow: var(--box-shadow);
-    }
-
-    .table-container {
-        position: relative;
-        overflow-x: auto;
-        margin: 20px auto;
-        border-radius: var(--border-radius);
-        box-shadow: var(--box-shadow);
-        background-color: white;
-    }
-
-    table {
-        border-collapse: collapse;
-        width: 100%;
-        font-size: 14px;
-        min-width: 600px;
-    }
-
-    th, td {
-        border: 1px solid #444 !important; /* Gri închis pentru un efect subtil */
-        padding: 12px 8px;
-        text-align: center;
-        position: relative;
-    }
-
-    th {
-        background-color: var(--primary-color);
-        color: white;
-        font-weight: 500;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-    }
-
-    th.sticky, td.sticky {
-        position: sticky;
-        left: 0;
-        z-index: 20;
-    }
-
-    th.sticky {
-        background-color: var(--primary-color);
-        z-index: 30;
-    }
-
-    td.sticky {
-        background-color: white;
-        font-weight: 500;
-        z-index: 20;
-    }
-
-    tr:nth-child(even) td.sticky {
-        background-color: #f8f9fa;
-    }
-
-    td:not(.sticky) {
-        background-color: rgba(67, 97, 238, 0.1);
-        z-index: 1;
-    }
-
-    .today {
-        background-color: rgba(67, 97, 238, 0.3) !important;
-        border: 2px solid var(--primary-color) !important;
-        z-index: 5;
-    }
-
-    .absent {
-        background-color: var(--danger-color) !important;
-        color: white !important;
-        z-index: 5;
-    }
-
-    @media (max-width: 768px) {
-        .header {
-            flex-direction: column;
-            align-items: flex-start;
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
-        
-        .buttons-container {
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            background-image: linear-gradient(to bottom, rgba(245, 247, 250, 0.9), rgba(245, 247, 250, 0.9)), 
+                              url('https://diez.md/wp-content/uploads/2016/04/1-81.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            color: var(--dark-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            touch-action: manipulation;
+            overscroll-behavior-y: contain;
+        }
+
+        #login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(33, 37, 41, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        #login-box {
+            background-color: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            transform: translateY(-20px);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        #login-box h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        #login-box .logo {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        #login-box input {
+            padding: 12px 15px;
+            margin: 15px 0;
+            width: 100%;
+            border: 2px solid #e9ecef;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        #login-box input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        #login-box button {
+            padding: 12px 25px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: var(--transition);
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #login-box button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        #login-box button i {
+            margin-right: 8px;
+        }
+
+        #error-message {
+            color: var(--danger-color);
             margin-top: 15px;
+            font-size: 14px;
+        }
+
+        #content {
+            display: none;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
             width: 100%;
         }
-        
-        .btn {
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
             flex: 1;
+            min-width: 200px;
+        }
+
+        .header h1 i {
+            margin-right: 10px;
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            margin: 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            font-size: 14px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            flex: 1;
+            min-width: 120px;
             justify-content: center;
         }
-    }
-</style>
+
+        .btn i {
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #d1145a;
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .table-container {
+            position: relative;
+            overflow-x: auto;
+            margin: 20px auto;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            background-color: white;
+            width: 100%;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-x;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: auto;
+            font-size: 14px;
+            min-width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #444 !important;
+            padding: 10px 8px;
+            text-align: center;
+            position: relative;
+            min-width: 80px;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th.sticky, td.sticky {
+            position: sticky;
+            left: 0;
+            z-index: 20;
+            min-width: 120px;
+        }
+
+        th.sticky {
+            z-index: 30;
+            background-color: var(--primary-color);
+        }
+
+        td.sticky {
+            background-color: white;
+            font-weight: 500;
+        }
+
+        tr:nth-child(even) td.sticky {
+            background-color: #f8f9fa;
+        }
+
+        td:not(.sticky) {
+            background-color: rgba(67, 97, 238, 0.1);
+            z-index: 1;
+        }
+
+        .today {
+            background-color: rgba(67, 97, 238, 0.3) !important;
+            border: 2px solid var(--primary-color) !important;
+            z-index: 5;
+        }
+
+        .absent {
+            background-color: var(--danger-color) !important;
+            color: white !important;
+            z-index: 5;
+        }
+
+        @media (max-width: 768px) {
+            #content {
+                padding: 15px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .header h1 {
+                font-size: 1.3rem;
+                margin-bottom: 10px;
+            }
+            
+            .buttons-container {
+                width: 100%;
+                gap: 8px;
+            }
+            
+            .btn {
+                padding: 8px 12px;
+                font-size: 13px;
+                min-width: unset;
+            }
+            
+            th, td {
+                padding: 8px 5px;
+                font-size: 13px;
+                min-width: 70px;
+            }
+            
+            th.sticky, td.sticky {
+                min-width: 100px;
+            }
+            
+            .table-container {
+                margin: 15px auto;
+                border-radius: 6px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #login-box {
+                padding: 20px;
+            }
+            
+            #login-box h2 {
+                font-size: 1.3rem;
+            }
+            
+            .btn i {
+                margin-right: 5px;
+            }
+            
+            th, td {
+                padding: 6px 3px;
+                font-size: 12px;
+                min-width: 60px;
+            }
+            
+            th.sticky, td.sticky {
+                min-width: 90px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div id="login-container">
@@ -305,7 +375,7 @@
             </div>
         </div>
         
-        <div class="table-container">
+        <div class="table-container" id="tableContainer">
             <table id="agenda">
                 <thead>
                     <tr id="dateRow">
@@ -364,6 +434,7 @@
             
             checkForNewDate();
             renderTable();
+            setupTouchScrolling();
             setInterval(checkForNewDate, 60 * 60 * 1000);
         }
 
@@ -499,6 +570,31 @@
             }
         }
 
+        // Scroll pe dispozitive mobile
+        function setupTouchScrolling() {
+            const container = document.getElementById('tableContainer');
+            let startX, scrollLeft;
+            let isDown = false;
+
+            container.addEventListener('touchstart', (e) => {
+                isDown = true;
+                startX = e.touches[0].pageX - container.offsetLeft;
+                scrollLeft = container.scrollLeft;
+            }, { passive: true });
+
+            container.addEventListener('touchmove', (e) => {
+                if(!isDown) return;
+                e.preventDefault();
+                const x = e.touches[0].pageX - container.offsetLeft;
+                const walk = (x - startX) * 1.5;
+                container.scrollLeft = scrollLeft - walk;
+            }, { passive: false });
+
+            container.addEventListener('touchend', () => {
+                isDown = false;
+            }, { passive: true });
+        }
+
         // Event listeners
         document.getElementById('password-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -506,12 +602,13 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelector('.table-container')?.addEventListener('wheel', (event) => {
-                event.preventDefault();
-                event.currentTarget.scrollLeft += event.deltaY;
-            });
-        });
+        // Scroll orizontal cu mouse wheel
+        document.querySelector('.table-container').addEventListener('wheel', function(e) {
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+                this.scrollLeft += e.deltaY;
+            }
+        }, { passive: false });
     </script>
 </body>
 </html>
