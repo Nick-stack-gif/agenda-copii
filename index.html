@@ -532,7 +532,40 @@
 
                     studentTable.appendChild(row);
                 });
+                
+                // După ce tabelul e randat, centrăm pe data curentă
+                scrollToToday();
             });
+        }
+
+        function scrollToToday() {
+            const today = new Date();
+            const currentDateStr = today.getDate() + "." + (today.getMonth() + 1);
+            const container = document.getElementById('tableContainer');
+            const table = document.getElementById('agenda');
+            
+            // Găsim indexul coloanei cu data de azi
+            const dateColumns = table.querySelectorAll('th:not(.sticky)');
+            let todayColumnIndex = -1;
+            
+            dateColumns.forEach((th, index) => {
+                if (th.textContent === currentDateStr) {
+                    todayColumnIndex = index;
+                    th.classList.add('today');
+                }
+            });
+            
+            // Dacă am găsit coloana cu data de azi, facem scroll
+            if (todayColumnIndex >= 0) {
+                const stickyColumnWidth = table.querySelector('.sticky').offsetWidth;
+                const columnWidth = dateColumns[0].offsetWidth;
+                const scrollPosition = (todayColumnIndex * columnWidth) - (container.offsetWidth / 2) + stickyColumnWidth;
+                
+                container.scrollTo({
+                    left: scrollPosition,
+                    behavior: 'smooth'
+                });
+            }
         }
 
         // Funcții pentru gestionarea elevilor
@@ -574,23 +607,11 @@
         function setupScrolling() {
             const container = document.getElementById('tableContainer');
             
-            // Pentru PC - Scroll orizontal cu rotița mouse-ului
+            // Pentru PC - Scroll orizontal cu rotița mouse-ului (mereu)
             container.addEventListener('wheel', function(e) {
-                // Verificăm dacă utilizatorul nu folosește bara de scroll verticală
-                if (!e.shiftKey && container.scrollHeight === container.clientHeight) {
-                    // Dacă tabelul nu are scroll vertical, facem scroll orizontal
-                    this.scrollLeft += e.deltaY;
-                    e.preventDefault();
-                } else if (!e.shiftKey && container.scrollTop + container.clientHeight >= container.scrollHeight) {
-                    // Dacă suntem la baza tabelului, facem scroll orizontal
-                    this.scrollLeft += e.deltaY;
-                    e.preventDefault();
-                } else if (!e.shiftKey && container.scrollTop <= 0) {
-                    // Dacă suntem în vârful tabelului, facem scroll orizontal
-                    this.scrollLeft += e.deltaY;
-                    e.preventDefault();
-                }
-                // Altfel, lăsăm scroll-ul vertical să funcționeze normal
+                // Facem scroll orizontal cu rotița (mereu)
+                this.scrollLeft += e.deltaY;
+                e.preventDefault();
             }, { passive: false });
 
             // Pentru telefoane - Scroll orizontal și vertical cu degetul
