@@ -21,6 +21,18 @@
             --transition: all 0.3s ease;
         }
 
+        /* Dark mode variables */
+        [data-theme="dark"] {
+            --primary-color: #4895ef;
+            --secondary-color: #4361ee;
+            --accent-color: #3f37c9;
+            --danger-color: #f72585;
+            --success-color: #4cc9f0;
+            --light-color: #212529;
+            --dark-color: #f8f9fa;
+            --gray-color: #adb5bd;
+        }
+
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
@@ -39,6 +51,15 @@
             line-height: 1.6;
             touch-action: manipulation;
             overscroll-behavior-y: contain;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Dark mode body styles */
+        [data-theme="dark"] body {
+            background-color: #121212;
+            background-image: linear-gradient(to bottom, rgba(18, 18, 18, 0.9), rgba(18, 18, 18, 0.9)), 
+                              url('https://diez.md/wp-content/uploads/2016/04/1-81.jpg');
+            color: var(--dark-color);
         }
 
         #login-container {
@@ -65,6 +86,12 @@
             width: 90%;
             transform: translateY(-20px);
             animation: fadeInUp 0.5s ease forwards;
+        }
+
+        /* Dark mode login box */
+        [data-theme="dark"] #login-box {
+            background-color: #2d2d2d;
+            color: white;
         }
 
         @keyframes fadeInUp {
@@ -95,6 +122,15 @@
             border-radius: var(--border-radius);
             font-size: 16px;
             transition: var(--transition);
+            background-color: white;
+            color: var(--dark-color);
+        }
+
+        /* Dark mode input */
+        [data-theme="dark"] #login-box input {
+            background-color: #3d3d3d;
+            border-color: #4d4d4d;
+            color: white;
         }
 
         #login-box input:focus {
@@ -211,6 +247,18 @@
             box-shadow: var(--box-shadow);
         }
 
+        /* Dark mode toggle button */
+        .btn-toggle {
+            background-color: var(--gray-color);
+            color: white;
+            min-width: 40px;
+            padding: 10px;
+        }
+
+        .btn-toggle:hover {
+            background-color: var(--accent-color);
+        }
+
         .table-container {
             position: relative;
             overflow: auto;
@@ -221,6 +269,11 @@
             background-color: white;
             width: 100%;
             -webkit-overflow-scrolling: touch;
+        }
+
+        /* Dark mode table container */
+        [data-theme="dark"] .table-container {
+            background-color: #2d2d2d;
         }
 
         table {
@@ -264,13 +317,30 @@
             font-weight: 500;
         }
 
+        /* Dark mode sticky cells */
+        [data-theme="dark"] td.sticky {
+            background-color: #2d2d2d;
+            color: white;
+        }
+
         tr:nth-child(even) td.sticky {
             background-color: #f8f9fa;
+        }
+
+        /* Dark mode even rows */
+        [data-theme="dark"] tr:nth-child(even) td.sticky {
+            background-color: #3d3d3d;
         }
 
         td:not(.sticky) {
             background-color: rgba(67, 97, 238, 0.1);
             z-index: 1;
+        }
+
+        /* Dark mode non-sticky cells */
+        [data-theme="dark"] td:not(.sticky) {
+            background-color: rgba(67, 97, 238, 0.2);
+            color: white;
         }
 
         .today {
@@ -372,6 +442,9 @@
             <div class="buttons-container">
                 <button class="btn btn-primary" onclick="addStudent()"><i class="fas fa-user-plus"></i> Adaugă Elev</button>
                 <button class="btn btn-danger" onclick="removeStudent()"><i class="fas fa-user-minus"></i> Șterge Elev</button>
+                <button class="btn btn-toggle" id="darkModeToggle" title="Dark Mode">
+                    <i class="fas fa-moon" id="darkModeIcon"></i>
+                </button>
             </div>
         </div>
         
@@ -400,9 +473,37 @@
                 document.getElementById('login-container').style.display = 'none';
                 document.getElementById('content').style.display = 'block';
                 initializeAppAndRenderTable();
+                loadDarkModePreference(); // Load dark mode preference after login
             } else {
                 errorMessage.style.display = 'block';
                 document.getElementById('password-input').value = '';
+            }
+        }
+
+        // Dark mode functions
+        function loadDarkModePreference() {
+            const darkModeEnabled = localStorage.getItem('darkMode') === 'true';
+            if (darkModeEnabled) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('darkModeIcon').classList.replace('fa-moon', 'fa-sun');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                document.getElementById('darkModeIcon').classList.replace('fa-sun', 'fa-moon');
+            }
+        }
+
+        function toggleDarkMode() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const darkModeIcon = document.getElementById('darkModeIcon');
+            
+            if (currentTheme === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+                darkModeIcon.classList.replace('fa-sun', 'fa-moon');
+                localStorage.setItem('darkMode', 'false');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                darkModeIcon.classList.replace('fa-moon', 'fa-sun');
+                localStorage.setItem('darkMode', 'true');
             }
         }
 
@@ -436,6 +537,9 @@
             renderTable();
             setupScrolling();
             setInterval(checkForNewDate, 60 * 60 * 1000);
+            
+            // Add event listener for dark mode toggle
+            document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
         }
 
         // Funcții pentru gestionarea datelor
