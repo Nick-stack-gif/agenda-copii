@@ -455,6 +455,13 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script>
+        let db;
+        let dates = [];
+        let students = [];
+        let dateRow;
+        let studentTable;
+        let unsubscribeStudents;
+
         function checkPassword() {
             const password = document.getElementById('password-input').value;
             const errorMessage = document.getElementById('error-message');
@@ -496,11 +503,6 @@
             }
         }
 
-        let db;
-        let dates;
-        let dateRow;
-        let studentTable;
-
         function initializeAppAndRenderTable() {
             const firebaseConfig = {
                 apiKey: "AIzaSyB4m8-f2BJ1V6LiAl6feZUfEyAK5HqTML8",
@@ -517,10 +519,21 @@
             dateRow = document.getElementById('dateRow');
             studentTable = document.getElementById('studentTable');
             
+            // Inițializare date
             dates = ["24.3", "25.3", "26.3", "27.3", "28.3", "29.3", "30.3", "31.3"];
             
+            // Ascultă pentru modificări în lista de elevi
+            unsubscribeStudents = db.collection("students").onSnapshot((snapshot) => {
+                students = [];
+                snapshot.forEach((doc) => {
+                    students.push(doc.id);
+                });
+                // Sortează elevii alfabetic
+                students.sort((a, b) => a.localeCompare(b, 'ro'));
+                renderTable();
+            });
+            
             checkForNewDate();
-            renderTable();
             setupScrolling();
             setInterval(checkForNewDate, 60 * 60 * 1000);
             
@@ -575,68 +588,50 @@
             renderDates();
             studentTable.innerHTML = '';
             
-            db.collection("students").get().then(snapshot => {
-                const students = [];
-                const seenNames = new Set();
-                
-                snapshot.docs.forEach(doc => {
-                    const studentName = doc.id;
-                    if (!seenNames.has(studentName)) {
-                        seenNames.add(studentName);
-                        students.push(studentName);
-                    }
-                });
-                
-                // Sort students alphabetically
-                students.sort((a, b) => a.localeCompare(b, 'ro'));
-                
-                // Take only the first 39 students (if needed)
-                const displayedStudents = students.slice(0, 39);
-                
-                displayedStudents.forEach((studentName, index) => {
-                    const row = document.createElement('tr');
-                    const indexCell = document.createElement('td');
-                    const nameCell = document.createElement('td');
+            // Folosește lista globală de elevi
+            students.slice(0, 39).forEach((studentName, index) => {
+                const row = document.createElement('tr');
+                const indexCell = document.createElement('td');
+                const nameCell = document.createElement('td');
 
-                    indexCell.textContent = index + 1;
-                    nameCell.textContent = studentName;
-                    indexCell.classList.add("sticky");
-                    nameCell.classList.add("sticky");
+                indexCell.textContent = index + 1;
+                nameCell.textContent = studentName;
+                indexCell.classList.add("sticky");
+                nameCell.classList.add("sticky");
 
-                    row.appendChild(indexCell);
-                    row.appendChild(nameCell);
+                row.appendChild(indexCell);
+                row.appendChild(nameCell);
 
-                    dates.forEach(date => {
-                        const cell = document.createElement('td');
-                        cell.setAttribute('data-student', studentName);
-                        cell.setAttribute('data-date', date);
+                dates.forEach(date => {
+                    const cell = document.createElement('td');
+                    cell.setAttribute('data-student', studentName);
+                    cell.setAttribute('data-date', date);
 
-                        db.collection("attendance")
-                            .doc(studentName + "-" + date)
-                            .get()
-                            .then(docSnap => {
-                                if (docSnap.exists && docSnap.data().absent) {
-                                    cell.classList.add('absent');
-                                }
-                            });
-
-                        cell.addEventListener('click', () => {
-                            cell.classList.toggle('absent');
-                            db.collection("attendance").doc(studentName + "-" + date).set({
-                                absent: cell.classList.contains('absent'),
-                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                            });
+                    db.collection("attendance")
+                        .doc(studentName + "-" + date)
+                        .get()
+                        .then(docSnap => {
+                            if (docSnap.exists && docSnap.data().absent) {
+                                cell.classList.add('absent');
+                            }
                         });
 
-                        if (isToday(date)) cell.classList.add("today");
-                        row.appendChild(cell);
+                    cell.addEventListener('click', () => {
+                        cell.classList.toggle('absent');
+                        db.collection("attendance").doc(studentName + "-" + date).set({
+                            absent: cell.classList.contains('absent'),
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
                     });
 
-                    studentTable.appendChild(row);
+                    if (isToday(date)) cell.classList.add("today");
+                    row.appendChild(cell);
                 });
-                
-                scrollToToday();
+
+                studentTable.appendChild(row);
             });
+            
+            scrollToToday();
         }
 
         function scrollToToday() {
@@ -670,14 +665,24 @@
         function addStudent() {
             const name = prompt("Introdu numele elevului:");
             if (name && name.trim() !== "") {
+                const studentName = name.trim();
+                
+                // Verifică dacă elevul există deja
+                if (students.includes(studentName)) {
+                    alert("Elevul există deja în listă!");
+                    return;
+                }
+                
                 db.collection("students")
-                    .doc(name.trim())
+                    .doc(studentName)
                     .set({})
                     .then(() => {
                         alert("Elevul a fost adăugat cu succes!");
-                        renderTable();
                     })
-                    .catch((error) => console.error("Eroare la adăugare:", error));
+                    .catch((error) => {
+                        console.error("Eroare la adăugare:", error);
+                        alert("A apărut o eroare la adăugarea elevului.");
+                    });
             } else {
                 alert("Numele elevului nu poate fi gol.");
             }
@@ -686,15 +691,24 @@
         function removeStudent() {
             const name = prompt("Introdu numele elevului de șters:");
             if (name && name.trim() !== "") {
-                if (confirm("Ești sigur că vrei să ștergi elevul " + name + "?")) {
+                const studentName = name.trim();
+                
+                if (!students.includes(studentName)) {
+                    alert("Elevul nu există în listă!");
+                    return;
+                }
+                
+                if (confirm("Ești sigur că vrei să ștergi elevul " + studentName + "?")) {
                     db.collection("students")
-                        .doc(name.trim())
+                        .doc(studentName)
                         .delete()
                         .then(() => {
                             alert("Elevul a fost șters cu succes!");
-                            renderTable();
                         })
-                        .catch((error) => console.error("Eroare la ștergere:", error));
+                        .catch((error) => {
+                            console.error("Eroare la ștergere:", error);
+                            alert("A apărut o eroare la ștergerea elevului.");
+                        });
                 }
             } else {
                 alert("Numele elevului nu poate fi gol.");
@@ -744,6 +758,13 @@
         document.getElementById('password-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 checkPassword();
+            }
+        });
+
+        // Curăță listenerii când pagina este închisă
+        window.addEventListener('beforeunload', function() {
+            if (unsubscribeStudents) {
+                unsubscribeStudents();
             }
         });
     </script>
