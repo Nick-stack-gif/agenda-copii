@@ -547,22 +547,9 @@
             const currentDateStr = currentDay + "." + currentMonth;
             
             if (!dates.includes(currentDateStr)) {
-                if (dates.length === 0) {
-                    dates.push(currentDateStr);
-                    renderTable();
-                    return;
-                }
-                
-                const lastDateStr = dates[dates.length - 1];
-                const [lastDay, lastMonth] = lastDateStr.split('.').map(Number);
-                const lastDate = new Date(today.getFullYear(), lastMonth - 1, lastDay);
-                const nextDate = new Date(lastDate);
-                nextDate.setDate(lastDate.getDate() + 1);
-                
-                if (nextDate.getDate() === currentDay && nextDate.getMonth() + 1 === currentMonth) {
-                    dates.push(currentDateStr);
-                    renderTable();
-                }
+                // Adaugă data curentă la sfârșitul listei
+                dates.push(currentDateStr);
+                renderTable();
             }
         }
 
