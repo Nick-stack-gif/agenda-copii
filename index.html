@@ -519,23 +519,35 @@
             dateRow = document.getElementById('dateRow');
             studentTable = document.getElementById('studentTable');
             
-            // Inițializare date
-            dates = ["24.3", "25.3", "26.3", "27.3", "28.3", "29.3", "30.3", "31.3"];
-            
+            // Încărcare date din Firestore
+            db.collection("config").doc("dates").get().then((doc) => {
+                if (doc.exists) {
+                    dates = doc.data().dates || [];
+                } else {
+                    dates = [];
+                }
+                checkForNewDate();
+                renderTable();
+                setupScrolling();
+                setInterval(checkForNewDate, 60 * 60 * 1000);
+            }).catch((error) => {
+                console.error("Eroare la încărcarea datelor:", error);
+                dates = [];
+                checkForNewDate();
+                renderTable();
+                setupScrolling();
+                setInterval(checkForNewDate, 60 * 60 * 1000);
+            });
+
             // Ascultă pentru modificări în lista de elevi
             unsubscribeStudents = db.collection("students").onSnapshot((snapshot) => {
                 students = [];
                 snapshot.forEach((doc) => {
                     students.push(doc.id);
                 });
-                // Sortează elevii alfabetic
                 students.sort((a, b) => a.localeCompare(b, 'ro'));
                 renderTable();
             });
-            
-            checkForNewDate();
-            setupScrolling();
-            setInterval(checkForNewDate, 60 * 60 * 1000);
             
             document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
         }
@@ -544,12 +556,14 @@
             const today = new Date();
             const currentDay = today.getDate();
             const currentMonth = today.getMonth() + 1;
-            const currentDateStr = currentDay + "." + currentMonth;
+            const currentDateStr = `${currentDay}.${currentMonth}`;
             
             if (!dates.includes(currentDateStr)) {
-                // Adaugă data curentă la sfârșitul listei
                 dates.push(currentDateStr);
-                renderTable();
+                // Actualizează Firestore cu noile date
+                db.collection("config").doc("dates").set({ dates: dates })
+                    .then(() => renderTable())
+                    .catch(error => console.error("Eroare la salvarea datelor:", error));
             }
         }
 
@@ -575,7 +589,6 @@
             renderDates();
             studentTable.innerHTML = '';
             
-            // Folosește lista globală de elevi
             students.slice(0, 39).forEach((studentName, index) => {
                 const row = document.createElement('tr');
                 const indexCell = document.createElement('td');
@@ -595,7 +608,7 @@
                     cell.setAttribute('data-date', date);
 
                     db.collection("attendance")
-                        .doc(studentName + "-" + date)
+                        .doc(`${studentName}-${date}`)
                         .get()
                         .then(docSnap => {
                             if (docSnap.exists && docSnap.data().absent) {
@@ -605,7 +618,7 @@
 
                     cell.addEventListener('click', () => {
                         cell.classList.toggle('absent');
-                        db.collection("attendance").doc(studentName + "-" + date).set({
+                        db.collection("attendance").doc(`${studentName}-${date}`).set({
                             absent: cell.classList.contains('absent'),
                             timestamp: firebase.firestore.FieldValue.serverTimestamp()
                         });
@@ -623,7 +636,7 @@
 
         function scrollToToday() {
             const today = new Date();
-            const currentDateStr = today.getDate() + "." + (today.getMonth() + 1);
+            const currentDateStr = `${today.getDate()}.${today.getMonth() + 1}`;
             const container = document.getElementById('tableContainer');
             const table = document.getElementById('agenda');
             
@@ -654,7 +667,6 @@
             if (name && name.trim() !== "") {
                 const studentName = name.trim();
                 
-                // Verifică dacă elevul există deja
                 if (students.includes(studentName)) {
                     alert("Elevul există deja în listă!");
                     return;
@@ -663,9 +675,7 @@
                 db.collection("students")
                     .doc(studentName)
                     .set({})
-                    .then(() => {
-                        alert("Elevul a fost adăugat cu succes!");
-                    })
+                    .then(() => alert("Elevul a fost adăugat cu succes!"))
                     .catch((error) => {
                         console.error("Eroare la adăugare:", error);
                         alert("A apărut o eroare la adăugarea elevului.");
@@ -685,13 +695,11 @@
                     return;
                 }
                 
-                if (confirm("Ești sigur că vrei să ștergi elevul " + studentName + "?")) {
+                if (confirm(`Ești sigur că vrei să ștergi elevul ${studentName}?`)) {
                     db.collection("students")
                         .doc(studentName)
                         .delete()
-                        .then(() => {
-                            alert("Elevul a fost șters cu succes!");
-                        })
+                        .then(() => alert("Elevul a fost șters cu succes!"))
                         .catch((error) => {
                             console.error("Eroare la ștergere:", error);
                             alert("A apărut o eroare la ștergerea elevului.");
@@ -748,7 +756,6 @@
             }
         });
 
-        // Curăță listenerii când pagina este închisă
         window.addEventListener('beforeunload', function() {
             if (unsubscribeStudents) {
                 unsubscribeStudents();
